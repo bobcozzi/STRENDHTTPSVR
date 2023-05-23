@@ -1,0 +1,22 @@
+ ENDHTTPSVR: PGM        PARM(&SERVERS)
+             DCL        VAR(&SERVERS) TYPE(*CHAR) LEN(3002)
+             DCL        VAR(&COUNT) TYPE(*INT) STG(*DEFINED) LEN(2) +
+                          DEFVAR(&SERVERS)
+             DCL        VAR(&SVRLIST) TYPE(*CHAR) STG(*DEFINED) +
+                          LEN(3000) DEFVAR(&SERVERS 3)
+             DCL        VAR(&HTTPSVR) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&POS) TYPE(*INT) LEN(4)
+             DCL        VAR(&I) TYPE(*INT) LEN(4)
+
+             DOFOR      VAR(&I) FROM(1) TO(&COUNT)
+                CHGVAR     VAR(&POS) VALUE(1 + ((&I - 1) * 10))
+                CHGVAR     VAR(&HTTPSVR) VALUE(%SST(&SVRLIST &POS 10))
+                IF (&HTTPSVR *NE ' ') THEN(DO)
+                   SNDPGMMSG  MSGID(CPF9897) MSGF(QCPFMSG) +
+                     MSGDTA('Ending TCP/IP *HTTP Server' *BCAT &HTTPSVR)
+                   ENDTCPSVR  SERVER(*HTTP) HTTPSVR(&HTTPSVR)
+                   MONMSG     MSGID(CPF0000 TCP0000)
+                ENDDO
+             ENDDO
+
+ ENDPGM:     ENDPGM 
